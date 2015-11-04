@@ -13,6 +13,7 @@ namespace PassSaver
 {
     public partial class Form1 : Form
     {
+        FileOper fo = new FileOper();
         bool first = true;        
         String[] Messages = new String[14];
         List<Color> colb = new List<Color>(); //хранит цвет кнопок
@@ -563,7 +564,7 @@ namespace PassSaver
                         list.Add(line);  //Наконец запилить это всё дело в список
                     }
                 }
-                CheckFolders();  // Проверка наличия нужных программе папок. Если чё, создадим :)
+                fo.CheckFolders();  // Проверка наличия нужных программе папок. Если чё, создадим :)
                 sr.Close();  // Вечно забываемая штука. ЗАКРЫТЬ ФАЙЛ!
                 if (countArrSiteName < 6)   // Если сайтов меньше 6-ти, выводим ошибку.
                 {
@@ -607,7 +608,7 @@ namespace PassSaver
         private void ErrorLoad(string filename)
         {
             
-            CheckFolders(); // Проверка папок
+            fo.CheckFolders(); // Проверка папок
             MessageBox.Show(Messages[4], Messages[5]);
             //var MyFile = File.Create("Wtf/" + filename); // И так сойдёт
             //  MyFile.Close();
@@ -622,7 +623,7 @@ namespace PassSaver
         private void saveArray(String fileName)
         {
             fileName = fileName.Replace(":", "-"); // В файле ":" неприемлимо
-            CheckFolders(); //проверка и создание папок
+            fo.CheckFolders(); //проверка и создание папок
             if (!File.Exists(fileName)) // Если файла нет - создаем.
             {
                 var myFile = File.Create(fileName);
@@ -652,7 +653,7 @@ namespace PassSaver
         private void saveArray(String fileName, String param)
         {
             fileName = fileName.Replace(":", "-"); // В файле ":" неприемлимо
-            CheckFolders(); //проверка и создание папок
+            fo.CheckFolders(); //проверка и создание папок
             if (!File.Exists(fileName)) // Если файла нет - создаем.
             {
                 var myFile = File.Create(fileName);
@@ -681,33 +682,10 @@ namespace PassSaver
             else
             MessageBox.Show(Messages[6] + fileName + Messages[8]);
         }
-        
-        public bool CheckIfFileIsBeingUsed(string fileName)
-        {
-            try
-            {
-                var myFile = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None);
-                myFile.Close();
-            }
-
-            catch 
-            {
-                return true;
-            }
-            return false;
-        }
 
         private void tsmiSave_Click(object sender, EventArgs e){saveArray("Backup/saver " + DateTime.Now.ToString() + ".dat");}
 
-        private void CheckFolders()
-        {
-            if (!Directory.Exists("Error"))
-                Directory.CreateDirectory("Error");
-            if (!Directory.Exists("Backup"))
-                Directory.CreateDirectory("Backup");
-            if (!Directory.Exists("Wtf"))
-                Directory.CreateDirectory("Wtf");
-        }
+        
 
         private void tsmiLoad_Click(object sender, EventArgs e)
         {
@@ -757,7 +735,7 @@ namespace PassSaver
 
         private void tsmiClose_Click(object sender, EventArgs e)
         {
-            if ((CheckIfFileIsBeingUsed("saver.dat") == true) && (File.Exists("saver.dat"))) //Файл существует, но занят другим приложением
+            if ((fo.CheckIfFileIsBeingUsed("saver.dat") == true) && (File.Exists("saver.dat"))) //Файл существует, но занят другим приложением
             {
                 MessageBox.Show(Messages[9], Messages[10]);
                 saveArray("Error/saver " + DateTime.Now.ToString() + ".dat");

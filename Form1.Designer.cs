@@ -508,10 +508,9 @@
             this.rbTopMost.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.rbTopMost.Location = new System.Drawing.Point(416, 6);
             this.rbTopMost.Name = "rbTopMost";
-            this.rbTopMost.Size = new System.Drawing.Size(30, 17);
+            this.rbTopMost.Size = new System.Drawing.Size(13, 12);
             this.rbTopMost.TabIndex = 31;
             this.rbTopMost.TabStop = true;
-            this.rbTopMost.Text = "5";
             this.rbTopMost.UseVisualStyleBackColor = true;
             this.rbTopMost.Click += new System.EventHandler(this.rbTopMost_Click);
             // 
