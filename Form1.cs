@@ -13,34 +13,39 @@ namespace PassSaver
 {
     public partial class Form1 : Form
     {
-        public static bool first = true;
-        public static String[] Messages = new String[14];
+        
         List<Color> colb = new List<Color>(); //хранит цвет кнопок
         List<Button> btns = new List<Button>(); //быстрое взаимодействие с кнопками
-        String editText, addText, rdy; //Изменение текста кнопок
+        public String editText, addText, rdy; //Изменение текста кнопок
         int indexS, indexL;  //Сохраняем выбранный сайт, логин  (индексы!)
-        public static int countArrSiteName; // Нужно! Для вычисления длины поля сайтов
-        public static String[, ,] arr = new String[100, 30, 4]; //"база данных" [x,y,z] x - названия сайтов, y - логины, z - пароли/почты
-        public static String language;//язык
+        public static String[] Messages = new String[14];
+        public static String language;
+        String[, ,] arr = new String[100, 30, 4]; //"база данных" [x,y,z] x - названия сайтов, y - логины, z - пароли/почты
+
+
+
 
 
         public Form1()
         {
             InitializeComponent();
             TopMost = true;
-            FileOper.loadArray("saver.dat"); // загрузка данных из файла в массив
+            lanEn(); 
+            arr = FileOper.loadArray("saver.dat"); // загрузка данных из файла в массив
+            
             formUpdate();
             cbSiteLogin.FormattingEnabled = false; // только чтение
-            // loadSites();  //Загружаем данные из массива или стандартные сайты
             cbSiteName.DropDownStyle = ComboBoxStyle.DropDownList; //запрещаем писать в комбобоксах
             cbSiteLogin.DropDownStyle = ComboBoxStyle.DropDownList;
+
             if (language != null)    //подтягиваем язык из настроек
             {
                 if (language.Equals("Eng"))
-                    lenEn();
-                else lenRu();
+                    lanEn();
+                else lanRu();
             }
-            else lenEn();
+            else lanEn();
+
             cbSiteName.SelectedIndex = 0; //выбираем 1-й сайт
             foreach (object o in Controls)
             {  //загугленная хрень, забивающая кнопки на форме в массив            
@@ -55,10 +60,7 @@ namespace PassSaver
 
         }
 
-
-        private void btnLngEn_Click(object sender, EventArgs e) { lenEn(); }
-        private void btnLngRu_Click(object sender, EventArgs e) { lenRu(); }
-        public void lenEn()
+        public void lanEn()
         {
             addText = "Add";
             editText = "Edit";
@@ -98,9 +100,8 @@ namespace PassSaver
             tsmiClose.Text = "Close";
             rbTopMost.Text = "Always on Top";
             language = "Eng";
-            rbTopMost.Checked = false;
         }
-        public void lenRu()
+        public void lanRu()
         {
             addText = "Добавить";
             editText = "Изменить";
@@ -140,8 +141,12 @@ namespace PassSaver
             tsmiClose.Text = "Закрыть";
             rbTopMost.Text = "Поверх всех окон";
             language = "Rus";
-            rbTopMost.Checked = true;
         }
+    
+
+        private void btnLngEn_Click(object sender, EventArgs e) { lanEn(); }
+        private void btnLngRu_Click(object sender, EventArgs e) { lanRu(); }
+        
 
 
 
@@ -521,7 +526,8 @@ namespace PassSaver
             }
             else
             {
-                for (int i = 0; i < countArrSiteName; i++)  // при записи строки сайтов счётчик был.. 
+                int SiteCount = FileOper.getSiteLength();
+                for (int i = 0; i < SiteCount; i++)  // при записи строки сайтов счётчик был.. 
                 {
                     addSite(arr[i, 0, 0]); //заполнение массива
                 }
@@ -586,7 +592,8 @@ namespace PassSaver
             }
             else
             {
-                FileOper.saveArray("saver.dat", "OnClosing");
+                FileOper.saveArray("saver.dat");
+                notifyIcon.ShowBalloonTip(3000, Form1.Messages[6] + "saver.dat", Form1.Messages[8], ToolTipIcon.Info);
             }
             Thread.Sleep(300);
             this.WindowState = FormWindowState.Minimized;

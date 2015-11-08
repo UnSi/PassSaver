@@ -3,11 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Windows.Forms;
 
 namespace PassSaver
 {
 	static class FileOper {
-		public static string fileName;
+		private static string fileName;
+        private static bool first = true;
+        private static int countArrSiteName = 0; // Нужно! Для вычисления длины поля сайтов
+        static String[, ,] arr = new String[100, 30, 4]; //"база данных" [x,y,z] x - названия сайтов, y - логины, z - пароли/почты
+
+
+
+        public static int getSiteLength()
+        {
+            return countArrSiteName;
+        }
 		public static bool CheckIfFileIsBeingUsed(string fileName)
 		{
 			try
@@ -33,16 +44,15 @@ namespace PassSaver
 				Directory.CreateDirectory("Wtf");
 		}
 
-		public static void loadArray(String filename)
+		public static String[,,] loadArray(String filename)
 		{
-			if (Form1.first)
-				Form1.lenEn();
+			
 			if (!File.Exists(filename)) //Возможно передать: /saver.dat/, /Backup/saver.dat/. 
-                return;
+                return null;
 			string line; // Это я загуглил. Так крутые проггеры делают
             List<String> list = new List<string>(); //List - откорректированный список загружаемых настроек.
             StreamReader sr = new StreamReader(File.OpenRead(filename)); //открыл файл настроек
-            Form1.countArrSiteName = 0; //ВОТ ЭТОТ СЧЁТЧИК! Не зря обнулил.
+            countArrSiteName = 0; //ВОТ ЭТОТ СЧЁТЧИК! Не зря обнулил.
             try // и если этот файл никто не ковырял...
 			{
 				while ((line = sr.ReadLine()) != "%EndFile%") //Читаю каждую строку до %конца файла%
@@ -60,7 +70,7 @@ namespace PassSaver
 						{
 							line = line.Replace("<S| ", "");
 							line = line.Replace(" />", "");
-							MessageBox.Show("Error loading site " + line, Messages[5]); // выводим текущий сайт
+							MessageBox.Show("Error loading site " + line, Form1.Messages[5]); // выводим текущий сайт
                             while (list.Count % 91 != 0)
 							{
 								list.Add("Error. Load the backup!"); // заболняем "ошибочными значениями" все поля.
@@ -82,9 +92,9 @@ namespace PassSaver
 				{
 					ErrorLoad(filename);
 					MessageBox.Show(Form1.Messages[13], Form1.Messages[5]);
-					return;
+					return null;
 				}
-
+                
 				for (int i = 0, k = 0; i < countArrSiteName; i++) // Если файл ковырялся - счётчик не увиличится, цикл пропустится
 				{
 					if (list[k] != "")
@@ -100,22 +110,22 @@ namespace PassSaver
 
 					if (list[k].Contains("%l++")) // Загрузка языка
 					{
-						language = list[k].Replace("%l++", "");
+						Form1.language = list[k].Replace("%l++", "");
 						if (!first)
 						{
 							MessageBox.Show(Form1.Messages[6] + filename + Form1.Messages[7]);
 							first = false;
 						}
-
-						formUpdate();
 						break;
 					}
 				}
+                return arr;
 			}
 			catch // ну, а если ковырял
 			{
 				sr.Close(); // ЗАКРЫТЬ ФАЙЛ!
                 ErrorLoad(filename);
+                return null;
 			}
 		}
 
@@ -146,7 +156,7 @@ namespace PassSaver
 
 			FileStream file = new FileStream(fileName, FileMode.Create);//создаем файловый поток
             StreamWriter writer = new StreamWriter(file);//создаем «потоковый писатель» и связываем его с файловым потоком 
-            for (int i = 0; i < cbSiteName.Items.Count; i++)
+            for (int i = 0; i < arr.GetLength(0); i++)
 			{
 				writer.WriteLine("<S| " + arr[i, 0, 0] + " />"); //записываем в файл
 
@@ -161,7 +171,7 @@ namespace PassSaver
 				writer.WriteLine("%Endl%");
 			}
 
-			writer.WriteLine("%l++" + language);
+			writer.WriteLine("%l++" + Form1.language);
 			writer.WriteLine("%EndFile%");
 			writer.Close();
 			MessageBox.Show(Form1.Messages[6] + fileName + Form1.Messages[8]);
@@ -179,7 +189,7 @@ namespace PassSaver
 
 			FileStream file = new FileStream(fileName, FileMode.Create);//создаем файловый поток
             StreamWriter writer = new StreamWriter(file);//создаем «потоковый писатель» и связываем его с файловым потоком 
-            for (int i = 0; i < cbSiteName.Items.Count; i++)
+            for (int i = 0; i < arr.GetLength(0); i++)
 			{
 				writer.WriteLine("<S| " + arr[i, 0, 0] + " />"); //записываем в файл
 
@@ -194,13 +204,9 @@ namespace PassSaver
 				writer.WriteLine("%Endl%");
 			}
 
-			writer.WriteLine("%l++" + language);
+			writer.WriteLine("%l++" + Form1.language);
 			writer.WriteLine("%EndFile%");
 			writer.Close();
-			if (param == "OnClosing")
-				notifyIcon.ShowBalloonTip(1000, Form1.Messages[6]+fileName, Form1.Messages[8], ToolTipIcon.Info);
-			else
-				MessageBox.Show(Form1.Messages[6] + fileName + Form1.Messages[8]);
 		}
 	}
 }
