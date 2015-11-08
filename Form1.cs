@@ -13,49 +13,52 @@ namespace PassSaver
 {
     public partial class Form1 : Form
     {
-        FileOper fo = new FileOper();
-        bool first = true;        
-        String[] Messages = new String[14];
+        public static bool first = true;
+        public static String[] Messages = new String[14];
         List<Color> colb = new List<Color>(); //хранит цвет кнопок
         List<Button> btns = new List<Button>(); //быстрое взаимодействие с кнопками
         String editText, addText, rdy; //Изменение текста кнопок
-        int indexS,indexL;  //Сохраняем выбранный сайт, логин  (индексы!)
-        int countArrSiteName; // Нужно! Для вычисления длины поля сайтов
-        String[,,] arr = new String[100,30,4]; //"база данных" [x,y,z] x - названия сайтов, y - логины, z - пароли/почты
-        String language;//язык
+        int indexS, indexL;  //Сохраняем выбранный сайт, логин  (индексы!)
+        public static int countArrSiteName; // Нужно! Для вычисления длины поля сайтов
+        public static String[, ,] arr = new String[100, 30, 4]; //"база данных" [x,y,z] x - названия сайтов, y - логины, z - пароли/почты
+        public static String language;//язык
+
+
         public Form1()
         {
             InitializeComponent();
             TopMost = true;
-            loadArray("saver.dat"); // загрузка данных из файла в массив
+            FileOper.loadArray("saver.dat"); // загрузка данных из файла в массив
             formUpdate();
             cbSiteLogin.FormattingEnabled = false; // только чтение
-           // loadSites();  //Загружаем данные из массива или стандартные сайты
+            // loadSites();  //Загружаем данные из массива или стандартные сайты
             cbSiteName.DropDownStyle = ComboBoxStyle.DropDownList; //запрещаем писать в комбобоксах
             cbSiteLogin.DropDownStyle = ComboBoxStyle.DropDownList;
             if (language != null)    //подтягиваем язык из настроек
             {
                 if (language.Equals("Eng"))
-                    lenEn(); 
+                    lenEn();
                 else lenRu();
             }
             else lenEn();
             cbSiteName.SelectedIndex = 0; //выбираем 1-й сайт
-            foreach (object o in Controls){  //загугленная хрень, забивающая кнопки на форме в массив            
-                if ((o as Button) is Button){
+            foreach (object o in Controls)
+            {  //загугленная хрень, забивающая кнопки на форме в массив            
+                if ((o as Button) is Button)
+                {
                     btns.Add((o as Button));
                     colb.Add((o as Button).ForeColor); // ну надо же от себя добавить что-то :)
                 }
             }
             notifyIcon.ContextMenuStrip = contextMenuStrip1;
             rbTopMost.Checked = true;
-            
+
         }
-        
-       
-        private void btnLngEn_Click(object sender, EventArgs e){lenEn();}
-        private void btnLngRu_Click(object sender, EventArgs e){lenRu();}
-        private void lenEn()
+
+
+        private void btnLngEn_Click(object sender, EventArgs e) { lenEn(); }
+        private void btnLngRu_Click(object sender, EventArgs e) { lenRu(); }
+        public void lenEn()
         {
             addText = "Add";
             editText = "Edit";
@@ -97,7 +100,7 @@ namespace PassSaver
             language = "Eng";
             rbTopMost.Checked = false;
         }
-        private void lenRu()
+        public void lenRu()
         {
             addText = "Добавить";
             editText = "Изменить";
@@ -140,14 +143,14 @@ namespace PassSaver
             rbTopMost.Checked = true;
         }
 
-        
-        
-        private void btnVK_Click(object sender, EventArgs e){cbSiteName.SelectedIndex = 0;}
-        private void btnOK_Click(object sender, EventArgs e){cbSiteName.SelectedIndex = 1;}
-        private void btnSkype_Click(object sender, EventArgs e){cbSiteName.SelectedIndex = 2;}
-        private void btnYA_Click(object sender, EventArgs e){cbSiteName.SelectedIndex = 3;}
-        private void btnMru_Click(object sender, EventArgs e){cbSiteName.SelectedIndex = 4;}
-        private void btnGoogle_Click(object sender, EventArgs e){cbSiteName.SelectedIndex = 5;}
+
+
+        private void btnVK_Click(object sender, EventArgs e) { cbSiteName.SelectedIndex = 0; }
+        private void btnOK_Click(object sender, EventArgs e) { cbSiteName.SelectedIndex = 1; }
+        private void btnSkype_Click(object sender, EventArgs e) { cbSiteName.SelectedIndex = 2; }
+        private void btnYA_Click(object sender, EventArgs e) { cbSiteName.SelectedIndex = 3; }
+        private void btnMru_Click(object sender, EventArgs e) { cbSiteName.SelectedIndex = 4; }
+        private void btnGoogle_Click(object sender, EventArgs e) { cbSiteName.SelectedIndex = 5; }
 
         private void btnRemoveSite_Click(object sender, EventArgs e)
         {
@@ -163,7 +166,7 @@ namespace PassSaver
                 cbSiteName.Items.RemoveAt(indexS);//удаление сайта из комбобокса
                 for (int i = indexS; i <= cbSiteName.Items.Count; i++) //начало движения - удалённый сайт, конец - последний элемент комбобокса
                 {
-                    for (int j = 0; j < arr.GetLength(1)-1; j++) //проверка каждого логина для текущего сайта
+                    for (int j = 0; j < arr.GetLength(1) - 1; j++) //проверка каждого логина для текущего сайта
                     {
                         arr[i, j, 0] = arr[i + 1, j, 0]; // запись сайта на ячейку назад
                         arr[i, j, 1] = arr[i + 1, j, 1]; // запись логина в предыдущий сайт
@@ -181,13 +184,13 @@ namespace PassSaver
             if (cbSiteLogin.Items.Count < 1) // Если логина нет, то и удалять нечего
                 return;
             indexL = cbSiteLogin.SelectedIndex; // Сохраняем индекс текущего логина
-            DialogResult result = MessageBox.Show(Messages[3]+ cbSiteName.Text + "?", Messages[1], MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult result = MessageBox.Show(Messages[3] + cbSiteName.Text + "?", Messages[1], MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes) // согласились... ок.
             {
                 cbSiteLogin.Items.RemoveAt(indexL); //удалить из комбобокса
                 for (int i = indexL; i <= cbSiteLogin.Items.Count; i++) // старт - текущий логин, конец - общее число логинов.
                 {
-                    arr[cbSiteName.SelectedIndex, i, 1] = arr[cbSiteName.SelectedIndex,i + 1, 1]; // Сайт текущий. Логин соседний.
+                    arr[cbSiteName.SelectedIndex, i, 1] = arr[cbSiteName.SelectedIndex, i + 1, 1]; // Сайт текущий. Логин соседний.
                     arr[cbSiteName.SelectedIndex, i, 2] = arr[cbSiteName.SelectedIndex, i + 1, 2];
                     arr[cbSiteName.SelectedIndex, i, 3] = arr[cbSiteName.SelectedIndex, i + 1, 3];
                 }
@@ -220,7 +223,7 @@ namespace PassSaver
                 else
                     MessageBox.Show(Messages[12]);
                 cbSiteName.DropDownStyle = ComboBoxStyle.DropDownList; //выключаем редактирование
-                cbSiteName.SelectedIndex = cbSiteName.Items.Count-1; //выбор последнего добавленного сайта
+                cbSiteName.SelectedIndex = cbSiteName.Items.Count - 1; //выбор последнего добавленного сайта
                 cbSiteName.BackColor = Color.Olive; // цвет поля
             }
         }
@@ -248,9 +251,9 @@ namespace PassSaver
             }
         }
 
-        private void btnCopyLogin_Click(object sender, EventArgs e){if (tbLogin.Text != "")Clipboard.SetText(tbLogin.Text);}
-        private void btnCopyPass_Click(object sender, EventArgs e){if (tbPassword.Text != "")Clipboard.SetText(tbPassword.Text);}
-        private void btnCopyMail_Click(object sender, EventArgs e){if (tbMail.Text != "")Clipboard.SetText(tbMail.Text);}
+        private void btnCopyLogin_Click(object sender, EventArgs e) { if (tbLogin.Text != "")Clipboard.SetText(tbLogin.Text); }
+        private void btnCopyPass_Click(object sender, EventArgs e) { if (tbPassword.Text != "")Clipboard.SetText(tbPassword.Text); }
+        private void btnCopyMail_Click(object sender, EventArgs e) { if (tbMail.Text != "")Clipboard.SetText(tbMail.Text); }
 
         private void btnEditLogin_Click(object sender, EventArgs e)
         {
@@ -358,7 +361,7 @@ namespace PassSaver
         private void cbSiteName_DropDown(object sender, EventArgs e) //был пьян. Переписать. Лень =\
         {
             int i;
-            if (cbSiteName.SelectedIndex!=-1)
+            if (cbSiteName.SelectedIndex != -1)
                 i = cbSiteName.SelectedIndex;
             else i = 0;
             btnEditSite.Text = editText;
@@ -391,7 +394,7 @@ namespace PassSaver
                 tbMail.Text = "";
                 tbLogin.Text = "";
             }
-        } 
+        }
         private void cbSiteLogin_DropDown(object sender, EventArgs e) //см. выше
         {
             int i;
@@ -420,7 +423,7 @@ namespace PassSaver
             {
                 tbLogin.Text = arr[cbSiteName.SelectedIndex, cbSiteLogin.SelectedIndex, 1];
                 tbPassword.Text = arr[cbSiteName.SelectedIndex, cbSiteLogin.SelectedIndex, 2];
-                tbMail.Text = arr[cbSiteName.SelectedIndex, cbSiteLogin.SelectedIndex, 3]; 
+                tbMail.Text = arr[cbSiteName.SelectedIndex, cbSiteLogin.SelectedIndex, 3];
             }
             catch
             {
@@ -453,7 +456,8 @@ namespace PassSaver
             tbMail.Text = arr[cbSiteName.SelectedIndex, cbSiteLogin.SelectedIndex, 3];
         }
 
-        private void btnInActiveExcept(Button btn) {    //выключение кнопок, кроме переданной. Тут всё просто.
+        private void btnInActiveExcept(Button btn)
+        {    //выключение кнопок, кроме переданной. Тут всё просто.
             for (int i = 0; i < btns.Count; i++)
             {
                 if (btns[i] != btn)
@@ -461,12 +465,13 @@ namespace PassSaver
                     btns[i].Enabled = false;
                     btns[i].ForeColor = Color.Gray;
                 }
-               // else colb.Add(btns[i].ForeColor); //Остатки от 10-го переписывания метода
+                // else colb.Add(btns[i].ForeColor); //Остатки от 10-го переписывания метода
             }
             tsmiSave.Enabled = false;
             tsmiLoad.Enabled = false;
         }
-        private void btnActive() {
+        private void btnActive()
+        {
             for (int i = 0; i < btns.Count; i++)  //возвращаем кнопкам цвет и активируем их
             {
                 btns[i].Enabled = true;
@@ -484,7 +489,7 @@ namespace PassSaver
         private void addLogin(String s)
         {
             if (s == "") return;
-            arr[cbSiteName.SelectedIndex, cbSiteLogin.Items.Count, 1] = s; 
+            arr[cbSiteName.SelectedIndex, cbSiteLogin.Items.Count, 1] = s;
             cbSiteLogin.Items.Add(s);
             tbLogin.Text = s;
         }
@@ -497,15 +502,15 @@ namespace PassSaver
                     cbSiteName.SelectedIndex = 0;
                 if (arr[cbSiteName.SelectedIndex, i, 1] != null)  // А не, всё норм. Если логин есть...
                 {
-                    if (arr[cbSiteName.SelectedIndex, i, 1]!="")  // и он не пустой
-                    cbSiteLogin.Items.Add(arr[cbSiteName.SelectedIndex, i, 1]); //Добавим его в комбобокс.
+                    if (arr[cbSiteName.SelectedIndex, i, 1] != "")  // и он не пустой
+                        cbSiteLogin.Items.Add(arr[cbSiteName.SelectedIndex, i, 1]); //Добавим его в комбобокс.
                 }
             }
 
         }
         private void loadSites()
         {
-            if (arr[0,0,0] == null) //Если файла не было => массив не заполнился, 1-го элемента нет, создаю заново.
+            if (arr[0, 0, 0] == null) //Если файла не было => массив не заполнился, 1-го элемента нет, создаю заново.
             {
                 addSite("vk.com");
                 addSite("ok.ru");
@@ -520,197 +525,36 @@ namespace PassSaver
                 {
                     addSite(arr[i, 0, 0]); //заполнение массива
                 }
-               // countArrSiteName = 0; // Всё та же привычка.
+                // countArrSiteName = 0; // Всё та же привычка.
             }
         }
 
-        private void loadArray(String filename)
-        {
-            if (first)
-                lenEn();
-            if (!File.Exists(filename))    //Возможно передать: /saver.dat/, /Backup/saver.dat/. 
-                return;
-            string line; // Это я загуглил. Так крутые проггеры делают
-            List<String> list = new List<string>(); //List - откорректированный список загружаемых настроек.
-            StreamReader sr = new StreamReader(File.OpenRead(filename)); //открыл файл настроек
-            countArrSiteName = 0; //ВОТ ЭТОТ СЧЁТЧИК! Не зря обнулил.
-            try           // и если этот файл никто не ковырял...
-            {
-                while ((line = sr.ReadLine()) != "%EndFile%") //Читаю каждую строку до %конца файла%
-                {
-                    if (line.Contains("<S| ")) countArrSiteName++; //Если сайт - увеличить счётчик  //  
-                    if ((line != "") && (line != "%Endl%") && (line != null)) // форматирование строк
-                    {
-                        if ((!line.Contains("<S| ")) && (list.Count % 91 == 0)&&(!line.Contains("%l++"))) // Если на позиции сайта вовсе не сайт...
-                        {
-                            countArrSiteName++;
-                            MessageBox.Show("Error in " + Convert.ToInt32(list.Count / 91) + "site");
-                        }
-                        if (line.Contains("<S| ") && (list.Count % 91 != 0))   // Если сайт не на своём месте
-                        {
-                            line = line.Replace("<S| ", "");
-                            line = line.Replace(" />", "");
-                            MessageBox.Show("Error loading site " + line, Messages[5]); // выводим текущий сайт
-                            while (list.Count % 91 != 0)
-                            {
-                                list.Add("Error. Load the backup!");  // заболняем "ошибочными значениями" все поля.
-                            }
-                        }
-                        line = line.Replace("<S| ", "");
-                        line = line.Replace("<L| ", "");
-                        line = line.Replace("<P| ", "");
-                        line = line.Replace("<M| ", "");
-                        line = line.Replace(" />", "");
-                        list.Add(line);  //Наконец запилить это всё дело в список
-                    }
-                }
-                fo.CheckFolders();  // Проверка наличия нужных программе папок. Если чё, создадим :)
-                sr.Close();  // Вечно забываемая штука. ЗАКРЫТЬ ФАЙЛ!
-                if (countArrSiteName < 6)   // Если сайтов меньше 6-ти, выводим ошибку.
-                {
-                    ErrorLoad(filename);
-                    MessageBox.Show(Messages[13], Messages[5]);
-                    return;
-                }
-                for (int i = 0, k = 0; i < countArrSiteName; i++)  // Если файл ковырялся - счётчик не увиличится, цикл пропустится
-                {
-                    if (list[k] != "")
-                        arr[i, 0, 0] = list[k++];  // Разделение списка на 3-хмерный массив
-                    else
-                        arr[i, 0, 0] = "Было сдвинуто значение!" + k++;
-                    for (int j = 0; j < arr.GetLength(1); j++)  // цикл пробежится 30*countArrSiteName раз. Максимум - 6000. Это будет беда
-                    {
-                        arr[i, j, 1] = list[k++];
-                        arr[i, j, 2] = list[k++];
-                        arr[i, j, 3] = list[k++];
-                    }
-                    if (list[k].Contains("%l++"))  // Загрузка языка
-                    {
-                        language = list[k].Replace("%l++", "");
-                        if (!first)
-                        {
-                            MessageBox.Show(Messages[6] + filename + Messages[7]);
-                            first = false;
-                        }
-                        formUpdate();
-                        break;
-                    }
-                }
-            }
-            catch // ну, а если ковырял
-            {
-                sr.Close();  // ЗАКРЫТЬ ФАЙЛ!
-                ErrorLoad(filename);
-            }
-            
-            
-        }
-        private void ErrorLoad(string filename)
-        {
-            
-            fo.CheckFolders(); // Проверка папок
-            MessageBox.Show(Messages[4], Messages[5]);
-            //var MyFile = File.Create("Wtf/" + filename); // И так сойдёт
-            //  MyFile.Close();
-            string s = DateTime.Now.ToString();
-            s = s.Replace(":", "-");
-            s = filename + s;
-            s = s.Replace(".dat", "");
-            s = s + ".dat";
-            File.Copy(filename, ("Wtf/" + s)); //Копирование файла в папку втф
-            File.Delete(filename); // удаление файла
-        }
-        private void saveArray(String fileName)
-        {
-            fileName = fileName.Replace(":", "-"); // В файле ":" неприемлимо
-            fo.CheckFolders(); //проверка и создание папок
-            if (!File.Exists(fileName)) // Если файла нет - создаем.
-            {
-                var myFile = File.Create(fileName);
-                myFile.Close();
-            }
-            FileStream file = new FileStream(fileName, FileMode.Create);//создаем файловый поток
-            StreamWriter writer = new StreamWriter(file);//создаем «потоковый писатель» и связываем его с файловым потоком 
-            for (int i = 0; i < cbSiteName.Items.Count; i++)
-            {
-                writer.WriteLine("<S| " + arr[i, 0, 0] + " />"); //записываем в файл
-
-                for (int j = 0; j < arr.GetLength(1); j++)
-                {
-                    writer.WriteLine("<L| " + arr[i, j, 1] + " />");
-                    writer.WriteLine("<P| " + arr[i, j, 2] + " />");
-                    writer.WriteLine("<M| " + arr[i, j, 3] + " />");
-                    writer.WriteLine();
-                }
-                writer.WriteLine("%Endl%");
-            }
-            writer.WriteLine("%l++" + language);
-            writer.WriteLine("%EndFile%");
-            writer.Close();
-            MessageBox.Show(Messages[6] + fileName + Messages[8]);
-        }
-
-        private void saveArray(String fileName, String param)
-        {
-            fileName = fileName.Replace(":", "-"); // В файле ":" неприемлимо
-            fo.CheckFolders(); //проверка и создание папок
-            if (!File.Exists(fileName)) // Если файла нет - создаем.
-            {
-                var myFile = File.Create(fileName);
-                myFile.Close();
-            }
-            FileStream file = new FileStream(fileName, FileMode.Create);//создаем файловый поток
-            StreamWriter writer = new StreamWriter(file);//создаем «потоковый писатель» и связываем его с файловым потоком 
-            for (int i = 0; i < cbSiteName.Items.Count; i++)
-            {
-                writer.WriteLine("<S| " + arr[i, 0, 0] + " />"); //записываем в файл
-
-                for (int j = 0; j < arr.GetLength(1); j++)
-                {
-                    writer.WriteLine("<L| " + arr[i, j, 1] + " />");
-                    writer.WriteLine("<P| " + arr[i, j, 2] + " />");
-                    writer.WriteLine("<M| " + arr[i, j, 3] + " />");
-                    writer.WriteLine();
-                }
-                writer.WriteLine("%Endl%");
-            }
-            writer.WriteLine("%l++" + language);
-            writer.WriteLine("%EndFile%");
-            writer.Close();
-            if (param == "OnClosing")
-                notifyIcon.ShowBalloonTip(1000, Messages[6]+fileName, Messages[8], ToolTipIcon.Info);
-            else
-            MessageBox.Show(Messages[6] + fileName + Messages[8]);
-        }
-
-        private void tsmiSave_Click(object sender, EventArgs e){saveArray("Backup/saver " + DateTime.Now.ToString() + ".dat");}
-
-        
+        private void tsmiSave_Click(object sender, EventArgs e) { FileOper.saveArray("Backup/saver " + DateTime.Now.ToString() + ".dat"); }
 
         private void tsmiLoad_Click(object sender, EventArgs e)
         {
-            loadBackup(); 
+            loadBackup();
         }
         private void open_Click(object sender, EventArgs e)
         {
             string s = sender.ToString();
-            s = "Backup/saver "+s+".dat";
-            loadArray(s);      
+            s = "Backup/saver " + s + ".dat";
+            FileOper.loadArray(s);
         }
         private void loadBackup()
         {
             tsmiLoad.DropDownItems.Clear();
             String[] files = Directory.GetFiles("Backup", "*.dat");
             if (files.Length < 1) { MessageBox.Show(Messages[11], Messages[1]); return; }
-                for (int i = 0; i < files.Length; i++)
-                {
-                    files[i] = files[i].Replace(".dat", "");
-                    files[i] = files[i].Replace("saver ", "");
-                    files[i] = files[i].Replace("Backup", "");
-                    files[i] = files[i].Remove(0, 1);
-                    ToolStripMenuItem windowNewMenu = new ToolStripMenuItem(files[i], null, new EventHandler(open_Click));
-                    tsmiLoad.DropDownItems.Add(windowNewMenu);
-                }
+            for (int i = 0; i < files.Length; i++)
+            {
+                files[i] = files[i].Replace(".dat", "");
+                files[i] = files[i].Replace("saver ", "");
+                files[i] = files[i].Replace("Backup", "");
+                files[i] = files[i].Remove(0, 1);
+                ToolStripMenuItem windowNewMenu = new ToolStripMenuItem(files[i], null, new EventHandler(open_Click));
+                tsmiLoad.DropDownItems.Add(windowNewMenu);
+            }
         }
         public void formUpdate()
         {
@@ -720,7 +564,7 @@ namespace PassSaver
             tbMail.Text = "";
             tbPassword.Text = "";
             loadSites();
-            cbSiteName.SelectedIndex = cbSiteName.Items.Count < 1 ? -1 : 0; 
+            cbSiteName.SelectedIndex = cbSiteName.Items.Count < 1 ? -1 : 0;
             cbSiteLogin.SelectedIndex = cbSiteLogin.Items.Count < 1 ? -1 : 0;
         }
 
@@ -735,16 +579,16 @@ namespace PassSaver
 
         private void tsmiClose_Click(object sender, EventArgs e)
         {
-            if ((fo.CheckIfFileIsBeingUsed("saver.dat") == true) && (File.Exists("saver.dat"))) //Файл существует, но занят другим приложением
+            if ((FileOper.CheckIfFileIsBeingUsed("saver.dat") == true) && (File.Exists("saver.dat"))) //Файл существует, но занят другим приложением
             {
                 MessageBox.Show(Messages[9], Messages[10]);
-                saveArray("Error/saver " + DateTime.Now.ToString() + ".dat");
+                FileOper.saveArray("Error/saver " + DateTime.Now.ToString() + ".dat");
             }
             else
             {
-                saveArray("saver.dat", "OnClosing");
+                FileOper.saveArray("saver.dat", "OnClosing");
             }
-            Thread.Sleep(600);
+            Thread.Sleep(300);
             this.WindowState = FormWindowState.Minimized;
             this.ShowInTaskbar = false;
             Application.Exit();
@@ -761,8 +605,8 @@ namespace PassSaver
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if(e.CloseReason.ToString()== "UserClosing")
-            e.Cancel = true;
+            if (e.CloseReason.ToString() == "UserClosing")
+                e.Cancel = true;
             this.WindowState = FormWindowState.Minimized;
             this.ShowInTaskbar = false;
         }
@@ -771,10 +615,10 @@ namespace PassSaver
         {
             if (e.Button == MouseButtons.Right) return;
             this.Show();
+            this.WindowState = FormWindowState.Normal;
             notifyIcon.Visible = true;
             this.ShowInTaskbar = true;
             this.Activate();
-            this.WindowState = FormWindowState.Normal;
         }
 
         private void rbTopMost_Click(object sender, EventArgs e)
