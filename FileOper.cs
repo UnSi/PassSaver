@@ -8,13 +8,21 @@ using System.Windows.Forms;
 namespace PassSaver
 {
 	static class FileOper {
-		private static string fileName;
+		//private static string fileName;
         private static bool first = true;
         private static int countArrSiteName = 0; // Нужно! Для вычисления длины поля сайтов
-        static String[, ,] arr = new String[100, 30, 4]; //"база данных" [x,y,z] x - названия сайтов, y - логины, z - пароли/почты
+       // static String[, ,] arr = new String[100, 30, 4]; //"база данных" [x,y,z] x - названия сайтов, y - логины, z - пароли/почты
 
 
 
+        public static void increaseSiteLength()
+        {
+            countArrSiteName++;
+        }
+        public static void decreaseSiteLength()
+        {
+            countArrSiteName--;
+        }
         public static int getSiteLength()
         {
             return countArrSiteName;
@@ -46,9 +54,9 @@ namespace PassSaver
 
 		public static String[,,] loadArray(String filename)
 		{
-			
+			String[, ,] arr = new String[100, 30, 4];
 			if (!File.Exists(filename)) //Возможно передать: /saver.dat/, /Backup/saver.dat/. 
-                return null;
+                return arr;
 			string line; // Это я загуглил. Так крутые проггеры делают
             List<String> list = new List<string>(); //List - откорректированный список загружаемых настроек.
             StreamReader sr = new StreamReader(File.OpenRead(filename)); //открыл файл настроек
@@ -92,7 +100,8 @@ namespace PassSaver
 				{
 					ErrorLoad(filename);
 					MessageBox.Show(Form1.Messages[13], Form1.Messages[5]);
-					return null;
+                    countArrSiteName = 0;
+                    return arr;
 				}
                 
 				for (int i = 0, k = 0; i < countArrSiteName; i++) // Если файл ковырялся - счётчик не увиличится, цикл пропустится
@@ -125,7 +134,7 @@ namespace PassSaver
 			{
 				sr.Close(); // ЗАКРЫТЬ ФАЙЛ!
                 ErrorLoad(filename);
-                return null;
+                return arr;
 			}
 		}
 
@@ -144,7 +153,7 @@ namespace PassSaver
             File.Delete(filename); // удаление файла
 		}
 
-		public static void saveArray(String fileName)
+		public static void saveArray(String[,,] arr,String fileName)
 		{
 			fileName = fileName.Replace(":", "-"); // В файле ":" неприемлимо
             CheckFolders(); //проверка и создание папок
@@ -156,7 +165,7 @@ namespace PassSaver
 
 			FileStream file = new FileStream(fileName, FileMode.Create);//создаем файловый поток
             StreamWriter writer = new StreamWriter(file);//создаем «потоковый писатель» и связываем его с файловым потоком 
-            for (int i = 0; i < arr.GetLength(0); i++)
+            for (int i = 0; i < countArrSiteName; i++)
 			{
 				writer.WriteLine("<S| " + arr[i, 0, 0] + " />"); //записываем в файл
 
@@ -177,7 +186,7 @@ namespace PassSaver
 			MessageBox.Show(Form1.Messages[6] + fileName + Form1.Messages[8]);
 		}
 
-		public static void saveArray(String fileName, String param)
+		public static void saveArray(String[,,] arr, String fileName, String param)
 		{
 			fileName = fileName.Replace(":", "-"); // В файле ":" неприемлимо
             CheckFolders(); //проверка и создание папок
@@ -189,7 +198,7 @@ namespace PassSaver
 
 			FileStream file = new FileStream(fileName, FileMode.Create);//создаем файловый поток
             StreamWriter writer = new StreamWriter(file);//создаем «потоковый писатель» и связываем его с файловым потоком 
-            for (int i = 0; i < arr.GetLength(0); i++)
+            for (int i = 0; i < countArrSiteName; i++)
 			{
 				writer.WriteLine("<S| " + arr[i, 0, 0] + " />"); //записываем в файл
 
@@ -198,6 +207,39 @@ namespace PassSaver
 					writer.WriteLine("<L| " + arr[i, j, 1] + " />");
 					writer.WriteLine("<P| " + arr[i, j, 2] + " />");
 					writer.WriteLine("<M| " + arr[i, j, 3] + " />");
+					writer.WriteLine();
+				}
+
+				writer.WriteLine("%Endl%");
+			}
+
+			writer.WriteLine("%l++" + Form1.language);
+			writer.WriteLine("%EndFile%");
+			writer.Close();
+		}
+		
+		
+		public static void saveListInFile(List<Site> siteList, string fileName, string param){
+			fileName = fileName.Replace(":", "-"); // В файле ":" неприемлимо
+            CheckFolders(); //проверка и создание папок
+            if (!File.Exists(fileName)) // Если файла нет - создаем.
+			{
+				var myFile = File.Create(fileName);
+				myFile.Close();
+			}
+
+			FileStream file = new FileStream(fileName, FileMode.Create);//создаем файловый поток
+            StreamWriter writer = new StreamWriter(file);//создаем «потоковый писатель» и связываем его с файловым потоком 
+            foreach (Site site in siteList)
+			{
+				writer.WriteLine("<S| " + site.ToString() + " />"); //записываем в файл
+
+                foreach (PassSaver.Site.Login login in site.getLoginList())
+				{
+					
+					writer.WriteLine("<L| " + login.getLogin() + " />");
+					writer.WriteLine("<P| " + login.getPassword() + " />");
+					writer.WriteLine("<M| " + login.getMail() + " />");
 					writer.WriteLine();
 				}
 

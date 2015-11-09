@@ -179,6 +179,7 @@ namespace PassSaver
                         arr[i, j, 3] = arr[i + 1, j, 3]; // запись почты в предыдущий сайт
                     }
                 }
+                FileOper.decreaseSiteLength();
             }
             cbSiteName.SelectedIndex = cbSiteName.Items.Count - 1; // выбор последнего добавленного сайта
             indexS = 0; // обнуляем индекс. Зачем? - не знаю, просто привычка.
@@ -490,6 +491,7 @@ namespace PassSaver
             if (s == "") return;        //не добавлю пустой!
             arr[cbSiteName.Items.Count, 0, 0] = s;  //запись сайта в массив
             cbSiteName.Items.Add(s); // добавление в комбобокс
+            FileOper.increaseSiteLength();
         }
         private void addLogin(String s)
         {
@@ -530,12 +532,13 @@ namespace PassSaver
                 for (int i = 0; i < SiteCount; i++)  // при записи строки сайтов счётчик был.. 
                 {
                     addSite(arr[i, 0, 0]); //заполнение массива
+                    FileOper.decreaseSiteLength();
                 }
                 // countArrSiteName = 0; // Всё та же привычка.
             }
         }
 
-        private void tsmiSave_Click(object sender, EventArgs e) { FileOper.saveArray("Backup/saver " + DateTime.Now.ToString() + ".dat"); }
+        private void tsmiSave_Click(object sender, EventArgs e) { FileOper.saveArray(arr,"Backup/saver " + DateTime.Now.ToString() + ".dat"); }
 
         private void tsmiLoad_Click(object sender, EventArgs e)
         {
@@ -588,11 +591,11 @@ namespace PassSaver
             if ((FileOper.CheckIfFileIsBeingUsed("saver.dat") == true) && (File.Exists("saver.dat"))) //Файл существует, но занят другим приложением
             {
                 MessageBox.Show(Messages[9], Messages[10]);
-                FileOper.saveArray("Error/saver " + DateTime.Now.ToString() + ".dat");
+                FileOper.saveArray(arr,"Error/saver " + DateTime.Now.ToString() + ".dat", "OnClosing");
             }
             else
             {
-                FileOper.saveArray("saver.dat");
+                FileOper.saveArray(arr,"saver.dat");
                 notifyIcon.ShowBalloonTip(3000, Form1.Messages[6] + "saver.dat", Form1.Messages[8], ToolTipIcon.Info);
             }
             Thread.Sleep(300);
